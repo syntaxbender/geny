@@ -1,4 +1,6 @@
 <?php
+        $start_time = microtime(true);
+define('START_TIME',$start_time);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -30,8 +32,10 @@ define('VIEWS_DIR', APP_DIR.'/views');
 define('TEMPLATE_DIR', VIEWS_DIR.'/template-parts');
 define('WRAPPERS_DIR', APP_DIR.'/wrappers');
 
-require ROUTES_DIR.'/index.php';
-$route = new Route();
-$this->route->get('/','');
+require CORE_DIR.'/app.php';
+require CORE_DIR.'/router.php';
+require CORE_DIR.'/controller.php';
+$app = new App();
+$app->registerRoute("home");
 
 ?>

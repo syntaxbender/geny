@@ -1,10 +1,12 @@
 <?php
-class Route{
-    private $instances = [];
+class Router{
     private function validateMethod($type){
         return $_SERVER["REQUEST_METHOD"] === $type; 
     }
-	private function pathResolve(){
+    /*
+    iyileştirsek iyi olabilir gibi
+    */
+	private function pathResolver(){
 		$scriptname = $_SERVER['SCRIPT_NAME'];
 		$dirname = dirname($scriptname);
 		$request_uri = parse_url($_SERVER['REQUEST_URI']);
@@ -15,7 +17,7 @@ class Route{
     Tehlikeli görünüyor fakat $path kısmını kod içerisinde hardcoded olarak veriyoruz. $requestUri ise normal düz regex kontrolüne tabii tutuluyor. Bir şekilde regex pattern'i manipüle edilse bile ancak ve ancak gidilebilecek nokta routing içerisinde tanımlı başka bir controller'a erişmek olur. 
     */
     private function validatePathReturnParams($path){
-        $requestUri = $this->pathResolve();
+        $requestUri = $this->pathResolver();
         $condition = preg_match('#^'.$path.'$#', $requestUri, $parameters);
 		unset($parameters[0]);
         return ($condition)? $parameters : false;
@@ -25,32 +27,35 @@ class Route{
         $parameters = array_combine($paramKeys,$parameters);
         return $parameters;
     }
-    private function callRouter($routerMethod,$params){ // like singleton pattern
-        $router = explode('@',$routerMethod);
-        $routerFile = ROUTES_DIR.'/'.strtolower($router[0]).'.php';
+    private function callRouter($routerMethod,$params){ 
+        $this->{$routerMethod}(...$params);
+    }
+    public function callController($className,$method,$constuctorParams=[],$params=[]){ // like singleton pattern
+        $routerFile = CONTROLLERS_DIR.'/'.strtolower($className).'.php';
         if(!file_exists($routerFile)) throw new Error("ROUTER_MISSING");
         require_once $routerFile;
-        if(!in_array($router[0],$this->instances)){
-            $class  = new ReflectionClass($router[0]);
-            $instance = $class->newInstanceArgs();
-            $this->instances[$router[0]] = $instance;
-        }else{
-            $this->instances[$router[0]]->{$router[1]}($params);
-        }
+        $className = $className."Controller";
+        $class  = new ReflectionClass($className);
+        $instance = $class->newInstanceArgs($constuctorParams);
+		$instance->{$method}($params);
         exit();
     }
-    public function get($path, $routerMethod, $paramKeys = []){
-        if($this->validateMethod("GET")){ //method validation
+    private function methodResolver($method,$path,$routerMethod, $paramKeys){
+        if($this->validateMethod($method)){ //method validation
             $validation = $this->validatePathReturnParams($path); //path validation
-            if($validation){ 
+            if($validation !== false){ 
+                $params = [];
                 if(count($paramKeys)>0)
                     $params = $this->bindParams($validation,$paramKeys); // param(count) validation
                 $this->callRouter($routerMethod,$params);         
             }
         }
     }
-    public function post(){
-        return $this;
+    public function get($path, $routerMethod, $paramKeys = []){
+        $this->methodResolver("GET",$path, $routerMethod, $paramKeys);
+    }
+    public function post($path, $routerMethod, $paramKeys = []){
+        $this->methodResolver("POST",$path, $routerMethod, $paramKeys);
     }
 }
 ?>
