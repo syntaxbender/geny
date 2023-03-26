@@ -1,5 +1,5 @@
 <?php
-        $start_time = microtime(true);
+$start_time = microtime(true);
 define('START_TIME',$start_time);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -25,6 +25,7 @@ define('CORE_DIR', APP_DIR.'/core');
 define('HELPERS_DIR', APP_DIR.'/helpers');
 define('I18N_DIR', APP_DIR.'/i18n');
 define('MIDDLEWARES_DIR', APP_DIR.'/middlewares');
+define('THROWABLES_DIR', MIDDLEWARES_DIR.'/throwables');
 define('VALIDATORS_DIR', MIDDLEWARES_DIR.'/validators');
 define('QUERIES_DIR', APP_DIR.'/queries');
 define('ROUTES_DIR', APP_DIR.'/routes');

@@ -1,4 +1,5 @@
 <?php
+require_once(THROWABLES_DIR.'/router.php');
 class Router{
     private function validateMethod($type){
         return $_SERVER["REQUEST_METHOD"] === $type; 
@@ -23,7 +24,7 @@ class Router{
         return ($condition)? $parameters : false;
     }
     private function bindParams($parameters, $paramKeys){
-        if(count($parameters) != count($paramKeys)) throw new Error("PARAM_MISMATCH");
+        if(count($parameters) != count($paramKeys)) throw new RouterException("PARAM_MISMATCH");
         $parameters = array_combine($paramKeys,$parameters);
         return $parameters;
     }
@@ -32,7 +33,7 @@ class Router{
     }
     public function callController($className,$method,$constuctorParams=[],$params=[]){ // like singleton pattern
         $routerFile = CONTROLLERS_DIR.'/'.strtolower($className).'.php';
-        if(!file_exists($routerFile)) throw new Error("ROUTER_MISSING");
+        if(!file_exists($routerFile)) throw new RouterException("ROUTER_MISSING");
         require_once $routerFile;
         $className = $className."Controller";
         $class  = new ReflectionClass($className);
