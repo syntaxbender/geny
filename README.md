@@ -1,4 +1,5 @@
 # geny
+require PHP 7 >= 7.3.0, PHP 8
 
 Lightweight and simple micro PHP framework that focuses on rapid development and aims to keep code readable. It does not contain unnecessary components as much as possible, the responsibility rate is quite high. It is ultra budget project friendly.
 
